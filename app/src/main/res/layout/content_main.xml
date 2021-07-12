@@ -17,21 +17,20 @@
         android:background="@color/design_default_color_primary"
         android:contentDescription="Download Icon"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/files_to_download"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@android:drawable/stat_sys_download"
         tools:visibility="visible" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <RadioGroup
+        android:id="@+id/files_to_download"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
-        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/custom_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -53,7 +52,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/retrofit_download_btn_label" />
-    </LinearLayout>
+    </RadioGroup>
+
 
     <com.udacity.LoadingButton
         android:id="@+id/custom_button"
