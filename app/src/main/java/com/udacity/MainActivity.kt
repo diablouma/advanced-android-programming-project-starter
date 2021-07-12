@@ -1,19 +1,23 @@
 package com.udacity
 
 import android.app.DownloadManager
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -41,6 +45,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, R.string.please_select_an_option, Toast.LENGTH_SHORT).show()
             }
         }
+
+        createChannel(
+            CHANNEL_ID,
+            CHANNEL_NAME
+        )
     }
 
     private fun isRadioGroupOptionSelected(optionsToDownload: RadioGroup): Boolean {
@@ -50,7 +59,21 @@ class MainActivity : AppCompatActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            if (isDownloadCompleted(id)) {
+//                notificationManager = this.getSystemService(
+//                    NotificationManager::class.java
+//                )
+//
+//                notificationManager.send(
+//                    context.getText(R.string.eggs_ready).toString(),
+//                    context
+//                )
+            }
         }
+    }
+
+    private fun isDownloadCompleted(downloadId: Long?): Boolean {
+        return downloadId != -1L
     }
 
     private fun download(optionsToDownload: RadioGroup) {
@@ -75,6 +98,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun createChannel(channelId: String, channelName: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(
+                channelId,
+                channelName,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+                .apply {
+                    setShowBadge(false)
+                }
+
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(true)
+            notificationChannel.description = "Download Completed"
+
+            notificationManager = this.getSystemService(
+                NotificationManager::class.java
+            )
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
+    }
+
 
     companion object {
         private const val APP_URL =
@@ -83,7 +130,8 @@ class MainActivity : AppCompatActivity() {
             "https://github.com/bumptech/glide"
         private const val RETROFIT_URL =
             "https://github.com/square/retrofit"
-        private const val CHANNEL_ID = "channelId"
+        private const val CHANNEL_ID = "downloadFilesNotificationChannel"
+        private const val CHANNEL_NAME = "Load app Download Files Channel"
     }
 
 }
