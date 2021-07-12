@@ -2,7 +2,12 @@ package com.udacity
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
+import android.graphics.Color.BLACK
+import android.graphics.Paint
+import android.graphics.RectF
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.withStyledAttributes
@@ -32,9 +37,22 @@ class LoadingButton @JvmOverloads constructor(
     }
 
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        paint.color = btnBackgroundColor
+        canvas.drawRect(RectF(0f, 0f, context.resources.displayMetrics.widthPixels - 24f, 150f), paint)
+        val downloadLabel = resources.getString(R.string.button_download_initial_text)
 
+        paint.color = btnTextColor
+        canvas.drawText(downloadLabel, width / 2f, height/2f, paint)
+
+    }
+
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        textAlign = Paint.Align.CENTER
+        textSize = 55.0f
+        typeface = Typeface.create( "", Typeface.BOLD)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
