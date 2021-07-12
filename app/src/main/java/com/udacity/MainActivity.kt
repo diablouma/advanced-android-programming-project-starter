@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity() {
-
+    private val NOTIFICATION_ID = 0
     private var downloadID: Long = 0
 
     private lateinit var notificationManager: NotificationManager
@@ -42,7 +42,11 @@ class MainActivity : AppCompatActivity() {
             if (isRadioGroupOptionSelected(optionsToDownload)) {
                 download(optionsToDownload)
             } else {
-                Toast.makeText(applicationContext, R.string.please_select_an_option, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    R.string.please_select_an_option,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -53,21 +57,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isRadioGroupOptionSelected(optionsToDownload: RadioGroup): Boolean {
-       return optionsToDownload.checkedRadioButtonId != -1
+        return optionsToDownload.checkedRadioButtonId != -1
     }
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
             if (isDownloadCompleted(id)) {
-//                notificationManager = this.getSystemService(
-//                    NotificationManager::class.java
-//                )
-//
-//                notificationManager.send(
-//                    context.getText(R.string.eggs_ready).toString(),
-//                    context
-//                )
+                val notification = NotificationCompat.Builder(
+                    applicationContext,
+                    CHANNEL_ID
+                )
+                    .setSmallIcon(R.drawable.ic_assistant_black_24dp)
+                    .setContentTitle(
+                        applicationContext
+                            .getString(R.string.notification_title)
+                    )
+                    .setContentText("File Downloaded:" + id)
+                    .setStyle(NotificationCompat.BigTextStyle()).build()
+
+                notificationManager.notify(NOTIFICATION_ID, notification)
             }
         }
     }
