@@ -9,9 +9,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,8 +34,17 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
-            download()
+            val optionsToDownload = findViewById<RadioGroup>(R.id.files_to_download)
+            if (isRadioGroupOptionSelected(optionsToDownload)) {
+                download(optionsToDownload)
+            } else {
+                Toast.makeText(applicationContext, R.string.please_select_an_option, Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    private fun isRadioGroupOptionSelected(optionsToDownload: RadioGroup): Boolean {
+       return optionsToDownload.checkedRadioButtonId != -1
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -44,9 +53,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun download() {
+    private fun download(optionsToDownload: RadioGroup) {
         val request =
-            DownloadManager.Request(Uri.parse(getDownloadURL()))
+            DownloadManager.Request(Uri.parse(getDownloadURL(optionsToDownload)))
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -58,8 +67,7 @@ class MainActivity : AppCompatActivity() {
             downloadManager.enqueue(request)// enqueue puts the download request in the queue.
     }
 
-    private fun getDownloadURL(): String {
-        val optionsToDownload = findViewById<RadioGroup>(R.id.files_to_download)
+    private fun getDownloadURL(optionsToDownload: RadioGroup): String {
         return when (findViewById<RadioButton>(optionsToDownload.checkedRadioButtonId).id) {
             R.id.glide_download_button -> GLIDE_URL
             R.id.retrofit_download_button -> RETROFIT_URL
