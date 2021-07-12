@@ -16,4 +16,8 @@
     <string name="retrofit_download_btn_label">Retrofit - Typesafe HTTP client for Android and Java by Square, Inc.</string>
     <string name="button_download_initial_text">Download</string>
     <string name="please_select_an_option">Please select an option first.</string>
+    <string name="notification_action">Check the status.</string>
+    <string name="file_name_label_txt">File Name:</string>
+    <string name="status_label_txt">Status:</string>
+    <string name="ok_button_label">OK</string>
 </resources>
