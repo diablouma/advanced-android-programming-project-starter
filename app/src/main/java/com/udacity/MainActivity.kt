@@ -9,6 +9,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import kotlinx.android.synthetic.main.activity_main.*
@@ -43,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun download() {
         val request =
-            DownloadManager.Request(Uri.parse(URL))
+            DownloadManager.Request(Uri.parse(getDownloadURL()))
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -55,9 +58,23 @@ class MainActivity : AppCompatActivity() {
             downloadManager.enqueue(request)// enqueue puts the download request in the queue.
     }
 
+    private fun getDownloadURL(): String {
+        val optionsToDownload = findViewById<RadioGroup>(R.id.files_to_download)
+        return when (findViewById<RadioButton>(optionsToDownload.checkedRadioButtonId).id) {
+            R.id.glide_download_button -> GLIDE_URL
+            R.id.retrofit_download_button -> RETROFIT_URL
+            else -> APP_URL
+        }
+    }
+
+
     companion object {
-        private const val URL =
+        private const val APP_URL =
             "https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter/archive/master.zip"
+        private const val GLIDE_URL =
+            "https://github.com/bumptech/glide"
+        private const val RETROFIT_URL =
+            "https://github.com/square/retrofit"
         private const val CHANNEL_ID = "channelId"
     }
 
