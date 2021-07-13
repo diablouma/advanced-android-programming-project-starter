@@ -22,4 +22,5 @@
     <string name="ok_button_label">OK</string>
     <string name="failed_status">Failed</string>
     <string name="success_status">Success</string>
+    <string name="download_completed">Download Completed</string>
 </resources>

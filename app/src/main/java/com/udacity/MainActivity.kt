@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity() {
                 .build()
 
             notificationManager.notify(NOTIFICATION_ID, notification)
+            Toast.makeText(context, getString(R.string.download_completed), Toast.LENGTH_SHORT).show()
         }
     }
 
