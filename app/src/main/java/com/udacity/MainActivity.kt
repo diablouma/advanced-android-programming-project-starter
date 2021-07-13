@@ -93,7 +93,11 @@ class MainActivity : AppCompatActivity() {
                     applicationContext
                         .getString(R.string.notification_title)
                 )
-                .setContentText("File Downloaded:" + id)
+                .setContentText(
+                    "File Downloaded:" + downloadTitleAndStatus.get(
+                        DOWNLOAD_TITLE_KEY
+                    )
+                )
                 .setStyle(NotificationCompat.BigTextStyle())
                 .addAction(
                     R.drawable.ic_assistant_black_24dp,
