@@ -1,9 +1,6 @@
 package com.udacity
 
-import android.app.DownloadManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,18 +9,20 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity() {
     private val NOTIFICATION_ID = 0
+    private val REQUEST_CODE = 0
+    private val FLAGS = 0
     private var downloadID: Long = 0
 
     private lateinit var notificationManager: NotificationManager
@@ -63,32 +62,86 @@ class MainActivity : AppCompatActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            if (isDownloadCompleted(id)) {
-                val notification = NotificationCompat.Builder(
-                    applicationContext,
-                    CHANNEL_ID
-                )
-                    .setSmallIcon(R.drawable.ic_assistant_black_24dp)
-                    .setContentTitle(
-                        applicationContext
-                            .getString(R.string.notification_title)
-                    )
-                    .setContentText("File Downloaded:" + id)
-                    .setStyle(NotificationCompat.BigTextStyle()).build()
 
-                notificationManager.notify(NOTIFICATION_ID, notification)
+            val downloadTitleAndStatus = getDownloadTitleAndStatus(id!!)
+
+            val detailActivityIntent = Intent(applicationContext, DetailActivity::class.java)
+            detailActivityIntent.putExtra(
+                DOWNLOAD_STATUS_KEY, downloadTitleAndStatus.get(
+                    DOWNLOAD_STATUS_KEY
+                )
+            )
+
+            detailActivityIntent.putExtra(
+                DOWNLOAD_TITLE_KEY, downloadTitleAndStatus.get(
+                    DOWNLOAD_TITLE_KEY
+                )
+            )
+
+            pendingIntent = TaskStackBuilder.create(applicationContext).run {
+                addNextIntentWithParentStack(detailActivityIntent)
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
             }
+
+
+            val notification = NotificationCompat.Builder(
+                applicationContext,
+                CHANNEL_ID
+            )
+                .setSmallIcon(R.drawable.ic_assistant_black_24dp)
+                .setContentTitle(
+                    applicationContext
+                        .getString(R.string.notification_title)
+                )
+                .setContentText("File Downloaded:" + id)
+                .setStyle(NotificationCompat.BigTextStyle())
+                .addAction(
+                    R.drawable.ic_assistant_black_24dp,
+                    getString(R.string.notification_action),
+                    pendingIntent
+                )
+                .build()
+
+            notificationManager.notify(NOTIFICATION_ID, notification)
         }
     }
 
+    private fun getDownloadTitleAndStatus(downloadId: Long): Map<String, String> {
+        val downloadManagerQuery = DownloadManager.Query()
+        downloadManagerQuery.setFilterById(downloadId)
+        val result = HashMap<String, String>()
+
+        val queryResults =
+            (applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager).query(
+                downloadManagerQuery
+            )
+
+        if (queryResults.moveToFirst()) {
+            val status =
+                queryResults.getInt(queryResults.getColumnIndex(DownloadManager.COLUMN_STATUS))
+
+            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                result.put(DOWNLOAD_STATUS_KEY, getString(R.string.success_status))
+            } else {
+                result.put(DOWNLOAD_STATUS_KEY, getString(R.string.failed_status))
+            }
+            result.put(
+                DOWNLOAD_TITLE_KEY,
+                queryResults.getString(queryResults.getColumnIndex(DownloadManager.COLUMN_TITLE))
+            )
+        }
+
+        return result
+    }
+
     private fun isDownloadCompleted(downloadId: Long?): Boolean {
-        return downloadId != -1L
+        return downloadId != null && downloadId != -1L
     }
 
     private fun download(optionsToDownload: RadioGroup) {
         val request =
             DownloadManager.Request(Uri.parse(getDownloadURL(optionsToDownload)))
-                .setTitle(getString(R.string.app_name))
+                .setTitle(getDownloadTitle(optionsToDownload))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
                 .setAllowedOverMetered(true)
@@ -104,6 +157,14 @@ class MainActivity : AppCompatActivity() {
             R.id.glide_download_button -> GLIDE_URL
             R.id.retrofit_download_button -> RETROFIT_URL
             else -> APP_URL
+        }
+    }
+
+    private fun getDownloadTitle(optionsToDownload: RadioGroup): String {
+        return when (findViewById<RadioButton>(optionsToDownload.checkedRadioButtonId).id) {
+            R.id.glide_download_button -> getString(R.string.glide_btn_label)
+            R.id.retrofit_download_button -> getString(R.string.retrofit_download_btn_label)
+            else -> getString(R.string.load_app_repo_btn_label)
         }
     }
 
@@ -141,6 +202,8 @@ class MainActivity : AppCompatActivity() {
             "https://github.com/square/retrofit"
         private const val CHANNEL_ID = "downloadFilesNotificationChannel"
         private const val CHANNEL_NAME = "Load app Download Files Channel"
+        const val DOWNLOAD_STATUS_KEY = "downloadStatus"
+        const val DOWNLOAD_TITLE_KEY = "downloadTitle"
     }
 
 }
