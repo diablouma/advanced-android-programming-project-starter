@@ -42,15 +42,16 @@ class LoadingButton @JvmOverloads constructor(
     }
 
     private fun animateLoading() {
-        val animationForCircle = ValueAnimator.ofFloat(0f, sweepAngle)
-        animationForCircle.repeatMode = ValueAnimator.RESTART
-        animationForCircle.repeatCount = 1
-        animationForCircle.addUpdateListener { valueAnimator ->
-            val progress = valueAnimator.animatedValue as Float
-            this.sweepAngle = progress
-            this.invalidate()
-        }
+        val animationForCircle = setupAnimationForCircle()
+        val animationForLoadingBar = setupAnimationForLoadingProgressBar()
 
+        val set = AnimatorSet()
+        set.playTogether(animationForCircle, animationForLoadingBar)
+        set.duration = 4000
+        set.start()
+    }
+
+    private fun setupAnimationForLoadingProgressBar(): ValueAnimator? {
         val animationForLoadingBar = ValueAnimator.ofInt(0, widthSize)
         animationForLoadingBar.repeatMode = ValueAnimator.RESTART
         animationForLoadingBar.addUpdateListener { valueAnimator ->
@@ -59,11 +60,19 @@ class LoadingButton @JvmOverloads constructor(
             valueAnimator.interpolator = LinearInterpolator()
             this.invalidate()
         }
+        return animationForLoadingBar
+    }
 
-        val set = AnimatorSet()
-        set.playTogether(animationForCircle, animationForLoadingBar)
-        set.duration = 4000
-        set.start()
+    private fun setupAnimationForCircle(): ValueAnimator? {
+        val animationForCircle = ValueAnimator.ofFloat(0f, sweepAngle)
+        animationForCircle.repeatMode = ValueAnimator.RESTART
+        animationForCircle.repeatCount = 1
+        animationForCircle.addUpdateListener { valueAnimator ->
+            val progress = valueAnimator.animatedValue as Float
+            this.sweepAngle = progress
+            this.invalidate()
+        }
+        return animationForCircle
     }
 
     init {
