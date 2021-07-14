@@ -1,5 +1,6 @@
 package com.udacity
 
+import android.animation.ValueAnimator
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,10 +10,9 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Toast
+import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import kotlinx.android.synthetic.main.activity_main.*
@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE = 0
     private val FLAGS = 0
     private var downloadID: Long = 0
+    lateinit var customDownloadButton: LoadingButton
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var pendingIntent: PendingIntent
@@ -33,14 +34,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        customDownloadButton = findViewById(R.id.custom_button)
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         custom_button.setOnClickListener {
             val optionsToDownload = findViewById<RadioGroup>(R.id.files_to_download)
             if (isRadioGroupOptionSelected(optionsToDownload)) {
+                custom_button.buttonState = ButtonState.Loading
                 download(optionsToDownload)
             } else {
+                custom_button.buttonState = ButtonState.Loading
                 Toast.makeText(
                     applicationContext,
                     R.string.please_select_an_option,
