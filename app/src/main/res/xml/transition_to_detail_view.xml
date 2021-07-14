@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Transition
+        app:constraintSetStart="@layout/content_main"
+        app:constraintSetEnd="@layout/content_detail"
+        app:autoTransition="animateToEnd"
+        app:duration="4000"/>
+</MotionScene>
